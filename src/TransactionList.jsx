@@ -2,9 +2,10 @@ import { useState } from 'react';
 
 const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
-function TransactionList({ transactions }) {
+function TransactionList({ transactions, onDeleteTransaction }) {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
   let filteredTransactions = transactions;
   if (filterType !== "all") {
@@ -38,6 +39,7 @@ function TransactionList({ transactions }) {
             <th>Description</th>
             <th>Category</th>
             <th>Amount</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -49,10 +51,36 @@ function TransactionList({ transactions }) {
               <td className={t.type === "income" ? "income-amount" : "expense-amount"}>
                 {t.type === "income" ? "+" : "-"}${t.amount}
               </td>
+              <td>
+                <button className="delete-btn" onClick={() => setPendingDeleteId(t.id)}>
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {pendingDeleteId !== null && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <p>Are you sure you want to delete this transaction?</p>
+            <div className="modal-actions">
+              <button
+                className="modal-confirm"
+                onClick={() => {
+                  onDeleteTransaction(pendingDeleteId);
+                  setPendingDeleteId(null);
+                }}
+              >
+                Yes, delete
+              </button>
+              <button className="modal-cancel" onClick={() => setPendingDeleteId(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
